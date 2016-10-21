@@ -33,6 +33,8 @@ public abstract class IPCBasicChannel implements IPCChannel {
 
     private final List<IPCHandler> handlers = new ArrayList<>();
 
+    private boolean sendToMyself = false;
+
     private final EnumCounter<IPCEventType> messageCounts = new EnumCounter<>(IPCEventType.class);
 
     /*
@@ -54,7 +56,7 @@ public abstract class IPCBasicChannel implements IPCChannel {
     public void handleMessage(final String message) {
         try {
             final JsonNode event = mapper.readTree(message);
-            if (!channelId.equals(event.get(SENDER_UUID_KEY).asText())) {
+            if (sendToMyself || !channelId.equals(event.get(SENDER_UUID_KEY).asText())) {
                 messageCounts.incrementEventCount(IPCEventType.MESSAGE_PROCESSED);
                 for (final IPCHandler handler : handlers) {
                     try {
@@ -72,20 +74,19 @@ public abstract class IPCBasicChannel implements IPCChannel {
     /*
      * (non-Javadoc)
      *
-     * @see
-     * com.bjn.jsoneventprocessor.ipc.IPCProducer#sendCommand(java.lang.String,
+     * @see com.bjn.jsoneventprocessor.ipc.IPCProducer#sendCommand(java.lang.String,
      * java.lang.String, java.lang.String, java.lang.Object[])
      */
     @Override
-    public void sendCommand(final String command, final String application, final String entity, final Object... params) {
+    public void sendCommand(final String command, final String application, final String entity,
+            final Object... params) {
         sendCommand(command, application, entity, MetaUtil.createParamMap(params));
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see
-     * com.bjn.jsoneventprocessor.ipc.IPCProducer#sendCommand(java.lang.String,
+     * @see com.bjn.jsoneventprocessor.ipc.IPCProducer#sendCommand(java.lang.String,
      * java.lang.String, java.lang.String, java.util.Map)
      */
     @Override
@@ -106,8 +107,7 @@ public abstract class IPCBasicChannel implements IPCChannel {
     /*
      * (non-Javadoc)
      *
-     * @see
-     * com.bjn.jsoneventprocessor.ipc.IPCProducer#produceMessage(com.fasterxml
+     * @see com.bjn.jsoneventprocessor.ipc.IPCProducer#produceMessage(com.fasterxml
      * .jackson.databind.JsonNode)
      */
     @Override
@@ -149,6 +149,21 @@ public abstract class IPCBasicChannel implements IPCChannel {
      */
     public EnumCounter<IPCEventType> getMessageCounts() {
         return messageCounts;
+    }
+
+    /**
+     * @return the sendToMyself
+     */
+    public boolean isSendToMyself() {
+        return sendToMyself;
+    }
+
+    /**
+     * @param sendToMyself
+     *            the sendToMyself to set
+     */
+    public void setSendToMyself(final boolean sendToMyself) {
+        this.sendToMyself = sendToMyself;
     }
 
 }
