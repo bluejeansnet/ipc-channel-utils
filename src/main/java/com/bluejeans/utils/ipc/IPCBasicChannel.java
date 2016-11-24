@@ -31,7 +31,7 @@ public abstract class IPCBasicChannel implements IPCChannel {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private final List<IPCHandler> handlers = new ArrayList<>();
+    private List<IPCHandler> handlers = new ArrayList<>();
 
     private boolean sendToMyself = false;
 
@@ -135,6 +135,14 @@ public abstract class IPCBasicChannel implements IPCChannel {
      */
     public List<IPCHandler> getHandlers() {
         return handlers;
+    }
+
+    /**
+     * @param handlers
+     *            the handlers to set
+     */
+    public void setHandlers(final List<IPCHandler> handlers) {
+        this.handlers = handlers;
     }
 
     /**
